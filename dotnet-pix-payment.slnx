@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PixPayment.Api/PixPayment.Api.csproj" />
+    <Project Path="src/PixPayment.Client/PixPayment.Client.csproj" />
+  </Folder>
+</Solution>
