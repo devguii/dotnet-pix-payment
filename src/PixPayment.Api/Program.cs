@@ -1,43 +1,31 @@
+using PixPayment.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// 1. Adiciona suporte para Controllers (essencial para o PixController funcionar)
+builder.Services.AddControllers(); 
 
-builder.Services.AddScoped<PixPayment.Api.Services.PixService>();
+// 2. Configura o Swagger (Interface Visual)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// 3. Registra serviço de Pix
+builder.Services.AddScoped<PixService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 4. Ativa o Swagger Visual se estiver em desenvolvimento
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(); // cria a página /swagger/index.html
 }
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+// 5. Mapeia os Controllers (Faz a rota /api/pix ser encontrada)
+app.MapControllers(); 
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
