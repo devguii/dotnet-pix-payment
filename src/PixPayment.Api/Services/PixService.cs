@@ -1,3 +1,4 @@
+using Net.Codecrete.QrCodeGenerator;
 using System.Text;
 using PixPayment.Api.Models;
 
