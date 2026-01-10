@@ -1,3 +1,4 @@
+using Net.Codecrete.QrCodeGenerator;
 using System.Text;
 using PixPayment.Api.Models;
 
@@ -5,6 +6,29 @@ namespace PixPayment.Api.Services;
 
 public class PixService
 {
+
+    public PixPaymentResponse CreatePayment(PixPaymentRequest request)
+    {
+        // 1. Gera a string (Copia e Cola)
+        var pixString = GeneratePixString(request);
+
+        // 2. Gera o QR Code (Imagem)
+        var qrCode = QrCode.EncodeText(pixString, QrCode.Ecc.Medium);
+        
+        // 3. Transforma o QR Code em um SVG (mais leve)
+        var svg = qrCode.ToSvgString(4);
+        
+        // 4. Converte o SVG para Base64 (facilita o envio no JSON)
+        var svgBytes = Encoding.UTF8.GetBytes(svg);
+        var base64 = Convert.ToBase64String(svgBytes);
+
+        return new PixPaymentResponse
+        {
+            CopyAndPaste = pixString,
+            QrCodeBase64 = $"data:image/svg+xml;base64,{base64}"
+        };
+    }
+
     public string GeneratePixString(PixPaymentRequest request)
     {
         // O Pix é composto por vários blocos (IDs). 

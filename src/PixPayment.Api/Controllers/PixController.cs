@@ -16,17 +16,14 @@ public class PixController : ControllerBase
         _pixService = pixService;
     }
 
-    [HttpPost("generate")]
-    public IActionResult GeneratePix([FromBody] PixPaymentRequest request)
-    {
-        if (string.IsNullOrEmpty(request.PixKey))
-            return BadRequest("A chave Pix é obrigatória.");
-
-        var pixString = _pixService.GeneratePixString(request);
-
-        return Ok(new { 
-            copyAndPaste = pixString,
-            message = "Código Pix gerado com sucesso!" 
-        });
-    }
+   [HttpPost("generate")]
+   public IActionResult GeneratePix([FromBody] PixPaymentRequest request)
+   {
+       if (string.IsNullOrEmpty(request.PixKey))
+           return BadRequest("A chave Pix é obrigatória.");
+           
+       var response = _pixService.CreatePayment(request);
+   
+       return Ok(response);
+   }
 }
