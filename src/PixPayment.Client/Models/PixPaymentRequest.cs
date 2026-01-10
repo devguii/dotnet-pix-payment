@@ -1,4 +1,4 @@
-namespace PixPayment.Api.Models;
+namespace PixPayment.Client.Models;
 
 public class PixPaymentRequest
 {

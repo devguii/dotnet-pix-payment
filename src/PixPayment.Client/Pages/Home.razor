@@ -1,7 +1,64 @@
 ﻿@page "/"
+@using PixPayment.Client.Models
+@inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
+<div class="container mt-5">
+    <h1 class="text-primary">⚡ Gerador de Pix</h1>
+    <p>Preencha os dados abaixo para criar uma cobrança.</p>
 
-<h1>Hello, world!</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm">
+                <div class="mb-3">
+                    <label>Chave Pix:</label>
+                    <input @bind="request.PixKey" class="form-control" placeholder="E-mail, CPF ou Chave Aleatória" />
+                </div>
+                <div class="mb-3">
+                    <label>Nome do Recebedor:</label>
+                    <input @bind="request.ReceiverName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Valor (R$):</label>
+                    <input type="number" @bind="request.Amount" class="form-control" />
+                </div>
+                <button class="btn btn-success w-100" @onclick="GerarPix">Gerar QR Code</button>
+            </div>
+        </div>
 
-Welcome to your new app.
+        <div class="col-md-6 text-center">
+            @if (loading) {
+                <p><em>Gerando...</em></p>
+            }
+            else if (response != null) {
+                <div class="card p-3">
+                    <h5>Escaneie para pagar:</h5>
+                    <img src="@response.QrCodeBase64" style="max-width: 300px;" class="mx-auto" />
+                    
+                    <div class="mt-3">
+                        <label>Copia e Cola:</label>
+                        <div class="input-group">
+                            <input readonly value="@response.CopyAndPaste" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private PixPaymentRequest request = new();
+    private PixPaymentResponse? response;
+    private bool loading = false;
+
+    private async Task GerarPix() {
+        loading = true;
+        // Chamada para a API
+        var result = await Http.PostAsJsonAsync("http://localhost:5065/api/pix/generate", request);
+        
+        if (result.IsSuccessStatusCode) {
+            response = await result.Content.ReadFromJsonAsync<PixPaymentResponse>();
+        }
+        loading = false;
+    }
+}
